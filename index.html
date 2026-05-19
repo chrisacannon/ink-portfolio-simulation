@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Strategy Framework — Chris Cannon</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg-secondary: #f7f6f2;
+    --bg-tertiary: #f1efe8;
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-tertiary: #888780;
+    --border: rgba(0,0,0,0.12);
+    --border-med: rgba(0,0,0,0.20);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --blue-50: #E6F1FB; --blue-200: #85B7EB; --blue-600: #185FA5; --blue-800: #0C447C;
+    --green-50: #EAF3DE; --green-200: #97C459; --green-600: #3B6D11; --green-800: #27500A;
+    --amber-50: #FAEEDA; --amber-200: #EF9F27; --amber-600: #854F0B; --amber-800: #633806;
+    --purple-50: #EEEDFE; --purple-200: #AFA9EC; --purple-600: #3C3489; --purple-800: #26215C;
+    --red-text: #A32D2D;
+    --up-text: #3B6D11;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --bg-secondary: #242422;
+      --bg-tertiary: #2c2c2a;
+      --text-primary: #f0ede8;
+      --text-secondary: #b4b2a9;
+      --text-tertiary: #888780;
+      --border: rgba(255,255,255,0.10);
+      --border-med: rgba(255,255,255,0.18);
+      --blue-50: #0C447C; --blue-200: #378ADD; --blue-600: #85B7EB; --blue-800: #B5D4F4;
+      --green-50: #27500A; --green-200: #639922; --green-600: #97C459; --green-800: #C0DD97;
+      --amber-50: #633806; --amber-200: #BA7517; --amber-600: #EF9F27; --amber-800: #FAC775;
+      --purple-50: #3C3489; --purple-200: #534AB7; --purple-600: #AFA9EC; --purple-800: #CECBF6;
+      --red-text: #F09595;
+      --up-text: #97C459;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    padding: 2rem 1rem;
+  }
+
+  .container { max-width: 780px; margin: 0 auto; }
+
+  .top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .nav-name { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+  .nav-link {
+    font-size: 13px; color: var(--blue-600); text-decoration: none;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .nav-link:hover { text-decoration: underline; }
+
+  .eyebrow {
+    font-size: 11px; font-weight: 500; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 8px;
+  }
+  .hero-title {
+    font-size: 22px; font-weight: 500; color: var(--text-primary);
+    margin-bottom: 10px; line-height: 1.3;
+  }
+  .hero-body {
+    font-size: 14px; color: var(--text-secondary);
+    line-height: 1.7; margin-bottom: 10px;
+  }
+  .hero-note {
+    font-size: 12px; color: var(--text-tertiary); line-height: 1.6;
+    padding: 10px 14px; background: var(--bg-secondary);
+    border-radius: var(--radius-md); margin-bottom: 0;
+  }
+
+  .divider { border: none; border-top: 0.5px solid var(--border); margin: 1.75rem 0; }
+  .sl {
+    font-size: 11px; font-weight: 500; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 14px;
+  }
+
+  .four-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px; margin-bottom: 1.5rem;
+  }
+  @media (max-width: 540px) { .four-grid { grid-template-columns: 1fr; } }
+
+  .box-card {
+    border: 0.5px solid var(--border); border-radius: var(--radius-lg);
+    padding: 16px; background: var(--bg);
+  }
+  .box-icon { font-size: 22px; margin-bottom: 10px; }
+  .box-label {
+    font-size: 11px; font-weight: 500; text-transform: uppercase;
+    letter-spacing: .07em; margin-bottom: 6px;
+  }
+  .box-def {
+    font-size: 13px; color: var(--text-secondary); line-height: 1.6;
+    margin-bottom: 10px; padding-bottom: 10px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .box-owned { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+  .box-owned strong { color: var(--text-primary); font-weight: 500; }
+  .box-metric {
+    display: inline-block; font-size: 11px; padding: 2px 8px;
+    border-radius: 99px; font-weight: 500; margin-top: 8px;
+  }
+
+  .transfer-strip {
+    background: var(--bg-secondary); border-radius: var(--radius-md);
+    padding: 14px 16px; margin-bottom: 1.5rem;
+    font-size: 13px; color: var(--text-secondary); line-height: 1.7;
+  }
+  .transfer-strip strong { color: var(--text-primary); font-weight: 500; }
+  .transfer-row {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px; margin-top: 12px;
+  }
+  @media (max-width: 600px) { .transfer-row { grid-template-columns: repeat(2, 1fr); } }
+  .transfer-cell { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+  .transfer-cell .ind {
+    font-weight: 500; color: var(--text-primary);
+    display: block; margin-bottom: 3px;
+  }
+
+  .question-row {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px; margin-bottom: 1.25rem;
+  }
+  @media (max-width: 540px) { .question-row { grid-template-columns: 1fr; } }
+  .q-card {
+    background: var(--bg-secondary); border-radius: var(--radius-md);
+    padding: 13px 15px;
+  }
+  .q-label {
+    font-size: 11px; font-weight: 500; text-transform: uppercase;
+    letter-spacing: .07em; color: var(--text-tertiary); margin-bottom: 7px;
+  }
+  .q-text { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  .q-text strong { color: var(--text-primary); font-weight: 500; }
+
+  .npi-grid {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px; margin-bottom: 1.25rem;
+  }
+  @media (max-width: 540px) { .npi-grid { grid-template-columns: 1fr; } }
+  .npi-card {
+    border: 0.5px solid var(--border); border-radius: var(--radius-lg);
+    padding: 16px; background: var(--bg);
+  }
+  .npi-card.rec { border: 2px solid #378ADD; }
+  .npi-head {
+    font-size: 13px; font-weight: 500; color: var(--text-primary);
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .npi-badge {
+    font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 500;
+    background: var(--blue-50); color: var(--blue-800); border: 0.5px solid var(--blue-200);
+  }
+  .npi-row {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    font-size: 12px; padding: 5px 0; border-bottom: 0.5px solid var(--border); gap: 8px;
+  }
+  .npi-row:last-child { border-bottom: none; }
+  .npi-lbl { color: var(--text-secondary); line-height: 1.4; }
+  .npi-lbl small { font-size: 11px; color: var(--text-tertiary); display: block; margin-top: 1px; }
+  .npi-val { color: var(--text-primary); font-weight: 500; text-align: right; white-space: nowrap; }
+  .up { color: var(--up-text); font-size: 11px; font-weight: 500; }
+  .dn { color: var(--red-text); font-size: 11px; font-weight: 500; }
+
+  .bridge {
+    border: 0.5px solid var(--border); border-radius: var(--radius-md);
+    padding: 13px 16px; font-size: 13px; color: var(--text-secondary); line-height: 1.7;
+    margin-bottom: 1.75rem;
+  }
+  .bridge strong { color: var(--text-primary); font-weight: 500; }
+
+  .sim-cta {
+    background: var(--bg); border: 0.5px solid var(--border-med);
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+  }
+  .sim-cta-text h3 { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+  .sim-cta-text p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+  .sim-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--text-primary); color: var(--bg);
+    font-size: 13px; font-weight: 500; padding: 9px 18px;
+    border-radius: var(--radius-md); text-decoration: none; white-space: nowrap;
+    transition: opacity .15s;
+  }
+  .sim-btn:hover { opacity: .85; }
+
+  footer {
+    margin-top: 3rem; padding-top: 1rem; border-top: 0.5px solid var(--border);
+    font-size: 12px; color: var(--text-tertiary);
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+  }
+  footer a { color: var(--text-tertiary); text-decoration: none; }
+  footer a:hover { color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <nav class="top-nav">
+    <span class="nav-name">Chris Cannon — Portfolio</span>
+    <a href="https://github.com/chrisacannon" class="nav-link" target="_blank">
+      <i class="ti ti-brand-github" aria-hidden="true"></i> chrisacannon
+    </a>
+  </nav>
+
+  <div class="eyebrow">Portfolio strategy framework</div>
+  <h1 class="hero-title">How I managed a $1.9B global hardware supplies portfolio</h1>
+  <p class="hero-body">Every business that sells hardware and charges for consumables — or that has recurring revenue tied to an installed base — runs on the same four revenue drivers. I owned three of them directly and was the primary source of analytical assumptions that fed financial planning and demand forecasting across a global organization.</p>
+  <p class="hero-note"><i class="ti ti-lock" style="font-size:13px;vertical-align:-1px;margin-right:5px" aria-hidden="true"></i>Product and company specifics have been abstracted to protect confidentiality. The framework, logic, and economic relationships reflect the actual work.</p>
+
+  <div class="divider"></div>
+
+  <div class="sl">The four revenue drivers</div>
+  <div class="four-grid">
+
+    <div class="box-card" style="border-top:3px solid #378ADD">
+      <div class="box-icon"><i class="ti ti-device-desktop" style="color:#378ADD" aria-hidden="true"></i></div>
+      <div class="box-label" style="color:var(--blue-600)">Installed base</div>
+      <div class="box-def">The population of active hardware units in the market generating recurring revenue opportunity. Size, growth rate, and segment mix determine the ceiling on everything else.</div>
+      <div class="box-owned"><strong>What I owned:</strong> Tracking platform mix across 7 printer price tiers, multiple generations, and 5 global regions — understanding which segments were growing and what that meant for supplies revenue over time.</div>
+      <span class="box-metric" style="background:var(--blue-50);color:var(--blue-800);border:0.5px solid var(--blue-200)">Monitored, not directly owned</span>
+    </div>
+
+    <div class="box-card" style="border-top:3px solid #639922">
+      <div class="box-icon"><i class="ti ti-chart-line" style="color:#639922" aria-hidden="true"></i></div>
+      <div class="box-label" style="color:var(--green-600)">Usage</div>
+      <div class="box-def">How much customers actually use the product — and therefore how often they repurchase. Higher usage means faster replacement cycles and more revenue per customer per year.</div>
+      <div class="box-owned"><strong>What I owned:</strong> Deriving monthly page volume, black/color mix, and high-yield cartridge mix from internal printer telemetry. Usage assumptions fed directly into revenue models and demand planning.</div>
+      <span class="box-metric" style="background:var(--green-50);color:var(--green-800);border:0.5px solid var(--green-200)">Directly owned</span>
+    </div>
+
+    <div class="box-card" style="border-top:3px solid #BA7517">
+      <div class="box-icon"><i class="ti ti-tag" style="color:#BA7517" aria-hidden="true"></i></div>
+      <div class="box-label" style="color:var(--amber-600)">Pricing</div>
+      <div class="box-def">The price architecture across product configurations, segments, and regions. In hardware-plus-consumables businesses, pricing decisions involve the hardware and the consumable together — not independently.</div>
+      <div class="box-owned"><strong>What I owned:</strong> Pricing assumptions across 4 business models, 5 regions, and multiple product generations — including the shift from transactional to subscription pricing in developed markets and profit-upfront models in emerging markets.</div>
+      <span class="box-metric" style="background:var(--amber-50);color:var(--amber-800);border:0.5px solid var(--amber-200)">Directly owned</span>
+    </div>
+
+    <div class="box-card" style="border-top:3px solid #7F77DD">
+      <div class="box-icon"><i class="ti ti-replace" style="color:#7F77DD" aria-hidden="true"></i></div>
+      <div class="box-label" style="color:var(--purple-600)">Aftermarket share</div>
+      <div class="box-def">The share of recurring purchases captured by the OEM vs. cheaper alternatives — third-party, refilled, or counterfeit. This is the primary revenue erosion variable in any category with substitutes.</div>
+      <div class="box-owned"><strong>What I owned:</strong> Tracking OEM share decay via telemetry, understanding the three phases of aftermarket entry (refill → remanufactured → counterfeit), and modeling the revenue recovery case for each new product launch.</div>
+      <span class="box-metric" style="background:var(--purple-50);color:var(--purple-800);border:0.5px solid var(--purple-200)">Directly owned</span>
+    </div>
+
+  </div>
+
+  <div class="transfer-strip">
+    <strong>This framework translates directly across industries.</strong> Any business where an upfront customer acquisition leads to recurring revenue runs on these same four drivers.
+    <div class="transfer-row">
+      <div class="transfer-cell"><span class="ind">Telecom</span>Subscribers → usage (data/calls) → ARPU → churn to competitors</div>
+      <div class="transfer-cell"><span class="ind">Wearables / fashion</span>Device owners → wear frequency → repeat purchase → lost wallet to competitors</div>
+      <div class="transfer-cell"><span class="ind">Razors / CPG</span>Handle owners → shave frequency → blade replacement → private label substitution</div>
+      <div class="transfer-cell"><span class="ind">Gaming consoles</span>Console owners → play sessions → game/accessory spend → platform switching</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="sl">The decision this powered — should we launch a new product generation?</div>
+  <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:1rem">Every few years the business faced a core question: is it worth investing in a new product generation, or is the existing one still performing? I built the assumption framework that answered this — combining all four drivers into a financial comparison across every region and business model.</p>
+
+  <div class="question-row">
+    <div class="q-card">
+      <div class="q-label">Is it worth it? — financial case</div>
+      <div class="q-text">A new generation <strong>resets aftermarket share to 100% OEM</strong> at launch — the single largest revenue lever. It also brings usage changes and pricing adjustments. The question: does the financial uplift over the product lifetime justify the investment?</div>
+    </div>
+    <div class="q-card">
+      <div class="q-label">Is it possible? — operational case</div>
+      <div class="q-text">Launch timing, regional ramp capacity, design constraints, and demand planning all had to align. I worked with operations and product teams on feasibility, and with the planning team to ensure assumptions were reflected in forecasts.</div>
+    </div>
+  </div>
+
+  <div class="npi-grid">
+    <div class="npi-card">
+      <div class="npi-head"><i class="ti ti-clock" aria-hidden="true"></i> Do nothing — prior generation at steady state</div>
+      <div class="npi-row"><span class="npi-lbl">OEM share (aftermarket fully eroded)</span><span class="npi-val">89%</span></div>
+      <div class="npi-row"><span class="npi-lbl">Annual supplies revenue / printer</span><span class="npi-val">$38</span></div>
+      <div class="npi-row"><span class="npi-lbl">Printer hardware margin</span><span class="npi-val dn">−$6</span></div>
+      <div class="npi-row"><span class="npi-lbl">Annual unit contribution</span><span class="npi-val">$36</span></div>
+      <div class="npi-row"><span class="npi-lbl">3-year total / printer</span><span class="npi-val">$108</span></div>
+      <div class="npi-row"><span class="npi-lbl">Aftermarket trajectory</span><span class="npi-val dn">Continuing to erode</span></div>
+    </div>
+    <div class="npi-card rec">
+      <div class="npi-head"><i class="ti ti-rocket" aria-hidden="true"></i> Launch new generation <span class="npi-badge">recommended</span></div>
+      <div class="npi-row">
+        <span class="npi-lbl">OEM share — yr 1 blended avg<small>resets to 100% at launch, decays over 6 qtrs</small></span>
+        <span class="npi-val">97% <span class="up">↑ launch reset</span></span>
+      </div>
+      <div class="npi-row"><span class="npi-lbl">Annual supplies revenue / printer</span><span class="npi-val">$47 <span class="up">+$9</span></span></div>
+      <div class="npi-row"><span class="npi-lbl">Printer hardware margin</span><span class="npi-val dn">−$6</span></div>
+      <div class="npi-row"><span class="npi-lbl">Annual unit contribution</span><span class="npi-val">$45 <span class="up">+25%</span></span></div>
+      <div class="npi-row"><span class="npi-lbl">3-year total / printer</span><span class="npi-val">$135 <span class="up">+$27</span></span></div>
+      <div class="npi-row"><span class="npi-lbl">Aftermarket trajectory</span><span class="npi-val up">Reset + security uplift</span></div>
+    </div>
+  </div>
+
+  <div class="bridge">
+    <strong>The transferable skill:</strong> structuring a complex, multi-variable business problem into a clear decision framework — identifying the key drivers, quantifying the tradeoffs, and presenting a recommendation with enough rigor that finance, operations, and executive leadership can act on it. The hardware and cartridges are the context. The framework is the capability.
+  </div>
+
+  <div class="sim-cta">
+    <div class="sim-cta-text">
+      <h3>Explore the full assumption model</h3>
+      <p>See how pricing, yield, cartridge mix, and aftermarket share interact across regions and business models — the actual analytical framework behind the numbers above.</p>
+    </div>
+    <a href="simulation.html" class="sim-btn">
+      Go deeper <i class="ti ti-arrow-right" aria-hidden="true"></i>
+    </a>
+  </div>
+
+  <footer>
+    <span>Chris Cannon &mdash; <a href="mailto:chrisacannon@gmail.com">chrisacannon@gmail.com</a></span>
+    <a href="https://github.com/chrisacannon" target="_blank"><i class="ti ti-brand-github" aria-hidden="true"></i> github.com/chrisacannon</a>
+  </footer>
+
+</div>
+</body>
+</html>

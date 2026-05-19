@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ink Supplies Portfolio Simulation — Chris Cannon</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg-secondary: #f7f6f2;
+    --bg-tertiary: #f1efe8;
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-tertiary: #888780;
+    --border: rgba(0,0,0,0.12);
+    --border-med: rgba(0,0,0,0.20);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --blue-50: #E6F1FB; --blue-200: #85B7EB; --blue-600: #185FA5; --blue-800: #0C447C;
+    --green-50: #EAF3DE; --green-200: #97C459; --green-600: #3B6D11; --green-800: #27500A;
+    --amber-50: #FAEEDA; --amber-200: #EF9F27; --amber-600: #854F0B; --amber-800: #633806;
+    --purple-50: #EEEDFE; --purple-200: #AFA9EC; --purple-600: #3C3489; --purple-800: #26215C;
+    --red-text: #A32D2D;
+    --up-text: #3B6D11;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a; --bg-secondary: #242422; --bg-tertiary: #2c2c2a;
+      --text-primary: #f0ede8; --text-secondary: #b4b2a9; --text-tertiary: #888780;
+      --border: rgba(255,255,255,0.10); --border-med: rgba(255,255,255,0.18);
+      --blue-50: #0C447C; --blue-200: #378ADD; --blue-600: #85B7EB; --blue-800: #B5D4F4;
+      --green-50: #27500A; --green-200: #639922; --green-600: #97C459; --green-800: #C0DD97;
+      --amber-50: #633806; --amber-200: #BA7517; --amber-600: #EF9F27; --amber-800: #FAC775;
+      --purple-50: #3C3489; --purple-200: #534AB7; --purple-600: #AFA9EC; --purple-800: #CECBF6;
+      --red-text: #F09595; --up-text: #97C459;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg-tertiary); color: var(--text-primary);
+    line-height: 1.6; padding: 2rem 1rem;
+  }
+
+  .container { max-width: 780px; margin: 0 auto; }
+
+  .top-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 0.5px solid var(--border);
+    flex-wrap: wrap; gap: 8px;
+  }
+  .nav-left { display: flex; align-items: center; gap: 12px; }
+  .back-link {
+    font-size: 13px; color: var(--text-secondary); text-decoration: none;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .back-link:hover { color: var(--text-primary); }
+  .nav-title { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+  .nav-sep { color: var(--text-tertiary); }
+
+  .eyebrow {
+    font-size: 11px; font-weight: 500; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 8px;
+  }
+  .page-title { font-size: 19px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; line-height: 1.3; }
+  .page-body { font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 10px; }
+  .conf-note {
+    font-size: 12px; color: var(--text-tertiary); line-height: 1.6;
+    padding: 10px 14px; background: var(--bg-secondary);
+    border-radius: var(--radius-md); margin-bottom: 0;
+  }
+
+  .divider { border: none; border-top: 0.5px solid var(--border); margin: 1.5rem 0; }
+  .sl {
+    font-size: 11px; font-weight: 500; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 12px;
+  }
+
+  .tab-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
+  .tb {
+    font-size: 12px; padding: 5px 13px; border: 0.5px solid var(--border);
+    border-radius: 99px; background: var(--bg); cursor: pointer;
+    color: var(--text-secondary); transition: all .1s;
+  }
+  .tb:hover { border-color: var(--border-med); color: var(--text-primary); }
+  .tb.on-blue { background: var(--blue-50); border-color: var(--blue-200); color: var(--blue-800); font-weight: 500; }
+  .tb.on-green { background: var(--green-50); border-color: var(--green-200); color: var(--green-800); font-weight: 500; }
+
+  .ctx-strip {
+    background: var(--bg-secondary); border-radius: var(--radius-md);
+    padding: 10px 14px; font-size: 12px; color: var(--text-secondary);
+    line-height: 1.6; margin-bottom: 1.25rem;
+  }
+  .ctx-strip strong { color: var(--text-primary); font-weight: 500; }
+
+  .cart-grid {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px; margin-bottom: 1.25rem;
+  }
+  @media (max-width: 600px) { .cart-grid { grid-template-columns: repeat(2, 1fr); } }
+  .cart-card {
+    background: var(--bg); border: 0.5px solid var(--border);
+    border-radius: var(--radius-md); padding: 10px 12px;
+  }
+  .cart-tag {
+    font-size: 10px; font-weight: 500; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px;
+  }
+  .cart-price { font-size: 17px; font-weight: 500; color: var(--text-primary); }
+  .cart-detail { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+  .cart-cpp { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+  .cart-full {
+    grid-column: 1 / -1; background: var(--bg-secondary);
+    border-radius: var(--radius-md); padding: 10px 14px;
+    display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+  }
+  .cart-full-item .cart-tag { margin-bottom: 2px; }
+
+  .metrics-row {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px; margin-bottom: 1.25rem;
+  }
+  @media (max-width: 600px) { .metrics-row { grid-template-columns: repeat(2, 1fr); } }
+  .metric-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 10px 12px; }
+  .metric-lbl { font-size: 11px; color: var(--text-tertiary); margin-bottom: 4px; }
+  .metric-val { font-size: 20px; font-weight: 500; color: var(--text-primary); line-height: 1; }
+  .metric-sub { font-size: 11px; color: var(--text-secondary); margin-top: 3px; }
+
+  .assume-row {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px; margin-bottom: 10px;
+  }
+  @media (max-width: 600px) { .assume-row { grid-template-columns: 1fr; } }
+  .assume-card {
+    background: var(--bg-secondary); border-radius: var(--radius-md); padding: 12px 14px;
+  }
+  .assume-lbl { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  .assume-val { font-size: 16px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+  .assume-desc { font-size: 11px; color: var(--text-tertiary); line-height: 1.5; padding-top: 8px; border-top: 0.5px solid var(--border); }
+
+  .tele-row {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px; margin-bottom: 1.25rem;
+  }
+  @media (max-width: 600px) { .tele-row { grid-template-columns: 1fr; } }
+  .tele-card {
+    border: 0.5px solid var(--border); border-radius: var(--radius-md);
+    padding: 10px 12px; background: var(--bg);
+  }
+  .tele-lbl { font-size: 11px; color: var(--text-tertiary); margin-bottom: 6px; }
+  .tele-bar-bg { height: 5px; background: var(--bg-secondary); border-radius: 3px; overflow: hidden; margin-bottom: 5px; }
+  .tele-bar { height: 100%; border-radius: 3px; transition: width .4s; }
+  .tele-vals { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); }
+
+  .npi-row {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px; margin-bottom: 1.25rem;
+  }
+  @media (max-width: 540px) { .npi-row { grid-template-columns: 1fr; } }
+  .sc-card {
+    border: 0.5px solid var(--border); border-radius: var(--radius-lg);
+    padding: 16px; background: var(--bg);
+  }
+  .sc-card.featured { border: 2px solid #378ADD; }
+  .sc-title {
+    font-size: 13px; font-weight: 500; color: var(--text-primary);
+    margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .sc-badge {
+    font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 500;
+    background: var(--blue-50); color: var(--blue-800); border: 0.5px solid var(--blue-200);
+  }
+  .sc-item {
+    display: flex; justify-content: space-between; font-size: 12px;
+    color: var(--text-secondary); padding: 5px 0; border-bottom: 0.5px solid var(--border);
+    gap: 8px;
+  }
+  .sc-item:last-child { border-bottom: none; }
+  .sc-item .v { color: var(--text-primary); font-weight: 500; text-align: right; }
+  .pos { color: var(--up-text); font-size: 11px; font-weight: 500; }
+  .neg { color: var(--red-text); font-size: 11px; font-weight: 500; }
+
+  .am-note { font-size: 11px; color: var(--text-tertiary); line-height: 1.5; margin-top: 8px; margin-bottom: 1.25rem; }
+
+  footer {
+    margin-top: 3rem; padding-top: 1rem; border-top: 0.5px solid var(--border);
+    font-size: 12px; color: var(--text-tertiary);
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+  }
+  footer a { color: var(--text-tertiary); text-decoration: none; }
+  footer a:hover { color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <nav class="top-nav">
+    <div class="nav-left">
+      <a href="index.html" class="back-link"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back</a>
+      <span class="nav-sep">|</span>
+      <span class="nav-title">Detailed assumption model</span>
+    </div>
+    <a href="https://github.com/chrisacannon" style="font-size:13px;color:var(--text-tertiary);text-decoration:none" target="_blank">
+      <i class="ti ti-brand-github" aria-hidden="true"></i> chrisacannon
+    </a>
+  </nav>
+
+  <div class="eyebrow">Ink supplies portfolio simulation</div>
+  <h1 class="page-title">Assumption framework — pricing, yield, mix & aftermarket share</h1>
+  <p class="page-body">This simulation models the analytical framework used to manage a ~$1.9B global ink supplies portfolio. Each combination of business model and region carried its own assumption set — the inputs below reflect what was maintained, updated from telemetry, and handed off to financial planning and demand forecasting.</p>
+  <p class="conf-note"><i class="ti ti-lock" style="font-size:13px;vertical-align:-1px;margin-right:5px" aria-hidden="true"></i>Product specifics have been abstracted to protect confidentiality. The model structure, assumption logic, and economic relationships reflect the actual analytical framework used in the role.</p>
+
+  <div class="divider"></div>
+
+  <div class="sl">Business model</div>
+  <div class="tab-wrap" id="bmTabs"></div>
+
+  <div class="sl">Region</div>
+  <div class="tab-wrap" id="regionTabs"></div>
+
+  <div class="ctx-strip" id="ctxStrip"></div>
+
+  <div class="sl">Supply configuration</div>
+  <div class="cart-grid" id="cartGrid"></div>
+
+  <div class="divider"></div>
+
+  <div class="sl">Unit economics — per printer, annualized</div>
+  <div class="metrics-row" id="metricsRow"></div>
+
+  <div class="divider"></div>
+
+  <div class="sl">Telemetry-derived assumptions</div>
+  <div class="assume-row">
+    <div class="assume-card">
+      <div class="assume-lbl">High-yield (XL) mix</div>
+      <div class="assume-val" id="xlVal">30% black · 15% color</div>
+      <div class="assume-desc">Share of customers purchasing the larger-capacity cartridge. Higher XL mix increases revenue per replacement cycle. Derived from telemetry across the installed base.</div>
+    </div>
+    <div class="assume-card">
+      <div class="assume-lbl">Black / color page mix</div>
+      <div class="assume-val">80% black · 20% color</div>
+      <div class="assume-desc">Share of pages printed in black vs. color. Black and color cartridges carry different prices, yields, and replacement frequencies — the blend directly affects revenue per printer.</div>
+    </div>
+    <div class="assume-card">
+      <div class="assume-lbl">OEM share at steady state</div>
+      <div class="assume-val" id="oemVal">—</div>
+      <div class="assume-desc">OEM share after aftermarket has fully entered the market. Varies significantly by region and business model. The primary revenue leakage variable — and the primary NPI recovery driver.</div>
+    </div>
+  </div>
+  <div class="tele-row" id="teleRow"></div>
+
+  <div class="divider"></div>
+
+  <div class="sl">Aftermarket share decay — OEM share by quarter from NPI launch</div>
+  <div style="position:relative;height:200px;margin-bottom:8px">
+    <canvas id="amChart" role="img" aria-label="Line chart showing OEM share starting at 100% at NPI launch and decaying over 6 quarters to steady state, compared to flat do-nothing line at steady state"></canvas>
+  </div>
+  <p class="am-note" id="amNote"></p>
+
+  <div class="divider"></div>
+
+  <div class="sl">NPI vs do-nothing — year 1 unit economics</div>
+  <div class="npi-row" id="npiRow"></div>
+
+  <footer>
+    <span>Chris Cannon &mdash; <a href="mailto:chrisacannon@gmail.com">chrisacannon@gmail.com</a></span>
+    <a href="https://github.com/chrisacannon" target="_blank"><i class="ti ti-brand-github" aria-hidden="true"></i> github.com/chrisacannon</a>
+  </footer>
+
+</div>
+
+<script>
+const PRINTER_COST = 55;
+const BK_MIX = 0.80, BK_XL = 0.30, COL_XL = 0.15;
+const HONEYMOON = 0.30, SECURITY_BOOST = 0.015;
+
+const BMS = {
+  trad_dm: { label:'Traditional', market:'Developed', color:'#378ADD', printerPrice:49, ppm:40,
+    desc:'Printer sold at a loss (~−12%); lifetime cartridge revenue is the profit model. Aftermarket competition is the primary ongoing revenue risk.',
+    regions:['NA','EU','AP'] },
+  vs: { label:'Value supplies', market:'Emerging', color:'#639922', printerPrice:70, ppm:50,
+    desc:'Printer sold near breakeven (+21%); supplies priced lower per page to serve price-sensitive segments. Separate cartridge series per region limits grey market activity.',
+    regions:['EU_em','AP_em','LA'] },
+  uvs: { label:'Ultra value supplies', market:'Emerging', color:'#BA7517', printerPrice:130, ppm:60,
+    desc:'Printer sold at a strong margin (+58%); very high-yield cartridges at very low cost-per-page. Hardware margin is the primary profit event.',
+    regions:['EU_em','AP_em','LA'] },
+  tank: { label:'Smart tank (ink tank)', market:'Emerging', color:'#7F77DD', printerPrice:170, ppm:75,
+    desc:'Bottle-fed ink system. Strong hardware margin (+68%) captured at point of sale. Near-zero ongoing ink cost per page. Kept out of developed markets to protect traditional supplies revenue.',
+    regions:['EU_em','AP_em','LA'] }
+};
+
+const REGION_LABELS = {
+  NA:'North America', EU:'W. Europe (DM)', AP:'Asia Pacific (DM)',
+  EU_em:'W. Europe (EM)', AP_em:'Asia Pacific (EM)', LA:'Latin America'
+};
+
+const SUPPLIES = {
+  trad_dm:{
+    NA:{bk_std:{p:22.99,y:120},bk_xl:{p:35.99,y:240},col_std:{p:23.99,y:100},col_xl:{p:36.99,y:200}},
+    EU:{bk_std:{p:17.18,y:120},bk_xl:{p:32.36,y:240},col_std:{p:17.18,y:100},col_xl:{p:29.71,y:200}},
+    AP:{bk_std:{p:22.99,y:120},bk_xl:{p:35.99,y:240},col_std:{p:23.99,y:100},col_xl:{p:36.99,y:200}},
+  },
+  vs:{
+    EU_em:{bk_std:{p:18.09,y:360},col_std:{p:15.75,y:200}},
+    AP_em:{bk_std:{p:10.60,y:360},col_std:{p:10.60,y:200}},
+    LA:{bk_std:{p:16.00,y:120},bk_xl:{p:48.02,y:480},col_std:{p:15.82,y:100},col_xl:{p:47.94,y:360}},
+  },
+  uvs:{
+    EU_em:{bk_std:{p:7.61,y:1300},col_std:{p:6.97,y:700}},
+    AP_em:{bk_std:{p:7.06,y:1300},col_std:{p:6.94,y:700}},
+    LA:{bk_std:{p:7.06,y:1300},col_std:{p:6.94,y:700}},
+  },
+  tank:{
+    EU_em:{bk_bottle:{p:23,y:6000},col_bottle:{p:65,y:8000}},
+    AP_em:{bk_bottle:{p:23,y:6000},col_bottle:{p:65,y:8000}},
+    LA:{bk_bottle:{p:23,y:6000},col_bottle:{p:65,y:8000}},
+  }
+};
+
+const AM_STEADY = {
+  trad_dm:{NA:0.04,EU:0.08,AP:0.11},
+  vs:{EU_em:0.15,AP_em:0.20,LA:0.30},
+  uvs:{EU_em:0.05,AP_em:0.06,LA:0.05},
+  tank:{EU_em:0.00,AP_em:0.00,LA:0.00}
+};
+
+const BM_DESCS = {
+  trad_dm:'Traditional developed market model: printer sold at a loss; lifetime cartridge revenue is the profit model. Aftermarket competition and subscription conversion are the primary revenue risks.',
+  vs:'Value supplies: printer near breakeven; supplies priced lower per page for price-sensitive emerging market segments. Separate cartridge series per region limits grey market activity.',
+  uvs:'Ultra value supplies: strong hardware margin at point of sale; very high-yield cartridges at very low cost-per-page. Hardware margin is the primary profit event.',
+  tank:'Smart tank: bottle-fed ink system with strong hardware margin captured upfront. Near-zero ongoing ink cost per page. Deployed in emerging markets only.'
+};
+
+let state = { bm:'trad_dm', region:'NA' };
+
+function cfg(){ return BMS[state.bm]; }
+function sup(){ return SUPPLIES[state.bm]?.[state.region]; }
+function amSS(){ return AM_STEADY[state.bm]?.[state.region] ?? 0.10; }
+function pm(){ return cfg().printerPrice - PRINTER_COST; }
+function pmPct(){ return Math.round((pm()/cfg().printerPrice)*100); }
+
+function suppliesRev(ppm, oemShare){
+  const s = sup(); if(!s) return 0;
+  if(state.bm==='tank'){
+    return ppm*12*(BK_MIX*(s.bk_bottle.p/s.bk_bottle.y)+(1-BK_MIX)*(s.bk_bottle.p/s.bk_bottle.y))*oemShare;
+  }
+  const bkP = s.bk_xl ? BK_XL*s.bk_xl.p+(1-BK_XL)*s.bk_std.p : s.bk_std.p;
+  const bkY = s.bk_xl ? BK_XL*s.bk_xl.y+(1-BK_XL)*s.bk_std.y : s.bk_std.y;
+  const colP = s.col_xl ? COL_XL*s.col_xl.p+(1-COL_XL)*s.col_std.p : s.col_std.p;
+  const colY = s.col_xl ? COL_XL*s.col_xl.y+(1-COL_XL)*s.col_std.y : s.col_std.y;
+  return ((ppm*BK_MIX*12/bkY)*bkP + (ppm*(1-BK_MIX)*12/colY)*colP)*oemShare;
+}
+
+function amCurve(ss){
+  const floor = Math.max(0, ss - SECURITY_BOOST);
+  const drop = 1.0 - floor;
+  const pts = [1.0];
+  for(let q=1;q<=3;q++) pts.push(+(1.0 - drop*(2/3)*(q/3)).toFixed(4));
+  for(let q=1;q<=3;q++) pts.push(+(1.0 - drop*(2/3) - drop*(1/3)*(q/3)).toFixed(4));
+  pts[6] = floor;
+  return pts;
+}
+
+function yr1OEM(curve){ return curve.slice(0,4).reduce((a,b)=>a+b,0)/4; }
+
+function npiPPM(){
+  const base = cfg().ppm;
+  return (base*(1+HONEYMOON)*6 + base*6)/12;
+}
+
+function render(){
+  const ss = amSS(), curve = amCurve(ss);
+  const npiOEM = yr1OEM(curve), dnOEM = 1-ss;
+  const pmVal = pm(), pmPerYr = pmVal/3;
+  const basePPM = cfg().ppm, npiPpm = npiPPM();
+  const supDN = suppliesRev(basePPM, dnOEM);
+  const supNPI = suppliesRev(npiPpm, npiOEM);
+  const totalDN = supDN + pmPerYr;
+  const totalNPI = supNPI + pmPerYr;
+
+  renderBmTabs(); renderRegionTabs(); renderCtx();
+  renderCarts(); renderMetrics(pmVal, pmPerYr, supNPI, totalNPI, dnOEM, npiOEM);
+  renderAssume(ss); renderTele(ss);
+  renderChart(curve, dnOEM);
+  renderNPI(supDN, totalDN, supNPI, totalNPI, pmPerYr, ss, npiOEM);
+}
+
+function renderBmTabs(){
+  document.getElementById('bmTabs').innerHTML = Object.entries(BMS).map(([id,c])=>
+    `<button class="tb${state.bm===id?' on-blue':''}" onclick="state.bm='${id}';state.region='${c.regions[0]}';render()">${c.label} <span style="font-size:10px;opacity:.65">${c.market}</span></button>`
+  ).join('');
+}
+
+function renderRegionTabs(){
+  document.getElementById('regionTabs').innerHTML = cfg().regions.map(r=>
+    `<button class="tb${state.region===r?' on-green':''}" onclick="state.region='${r}';render()">${REGION_LABELS[r]}</button>`
+  ).join('');
+}
+
+function renderCtx(){
+  const pmVal=pm(), pmPc=pmPct(), pmColor=pmVal>=0?'var(--up-text)':'var(--red-text)';
+  document.getElementById('ctxStrip').innerHTML=
+    `<strong>${cfg().label} · ${cfg().market} market · ${REGION_LABELS[state.region]}</strong><br>
+     <span style="display:block;margin-top:3px">${BM_DESCS[state.bm]}</span>
+     <span style="display:block;margin-top:4px;font-weight:500;color:${pmColor}">${pmVal>=0?'+':''}$${pmVal} printer margin (${pmVal>=0?'+':''}${pmPc}%) · $${cfg().printerPrice} retail vs $${PRINTER_COST} cost basis</span>`;
+}
+
+function renderCarts(){
+  const s=sup(), el=document.getElementById('cartGrid');
+  if(!s){el.innerHTML='<div style="grid-column:1/-1;font-size:13px;color:var(--text-tertiary)">No supply data for this combination.</div>';return;}
+  const isTank=state.bm==='tank';
+  const pmVal=pm(), pmPc=pmPct(), pmColor=pmVal>=0?'var(--up-text)':'var(--red-text)';
+  if(isTank){
+    el.innerHTML=`
+      <div class="cart-card"><div class="cart-tag">Black ink bottle</div><div class="cart-price">$${s.bk_bottle.p}</div><div class="cart-detail">${s.bk_bottle.y.toLocaleString()} pg yield</div><div class="cart-cpp">¢${((s.bk_bottle.p/s.bk_bottle.y)*100).toFixed(2)}/pg</div></div>
+      <div class="cart-card"><div class="cart-tag">Color bottle set</div><div class="cart-price">$${s.col_bottle.p}</div><div class="cart-detail">${s.col_bottle.y.toLocaleString()} pg yield</div><div class="cart-cpp">¢${((s.col_bottle.p/s.col_bottle.y)*100).toFixed(2)}/pg</div></div>
+      <div class="cart-full">
+        <div class="cart-full-item"><div class="cart-tag">Printer retail</div><div style="font-size:15px;font-weight:500;color:var(--text-primary)">$${cfg().printerPrice}</div></div>
+        <div class="cart-full-item"><div class="cart-tag">Cost basis</div><div style="font-size:15px;font-weight:500;color:var(--text-primary)">$${PRINTER_COST}</div></div>
+        <div class="cart-full-item"><div class="cart-tag">Hardware margin</div><div style="font-size:15px;font-weight:500;color:${pmColor}">${pmVal>=0?'+':''}$${pmVal} (${pmVal>=0?'+':''}${pmPc}%)</div></div>
+      </div>`;
+    return;
+  }
+  const cards=[{tag:'Black — standard',d:s.bk_std},{tag:'Color — standard',d:s.col_std}];
+  if(s.bk_xl) cards.push({tag:'Black — high yield',d:s.bk_xl,hl:true});
+  if(s.col_xl) cards.push({tag:'Color — high yield',d:s.col_xl,hl:true});
+  el.innerHTML=cards.map(c=>`
+    <div class="cart-card" style="${c.hl?'border-color:#85B7EB':''}">
+      <div class="cart-tag">${c.tag}</div>
+      <div class="cart-price">$${c.d.p.toFixed(2)}</div>
+      <div class="cart-detail">${c.d.y} pg yield</div>
+      <div class="cart-cpp">¢${((c.d.p/c.d.y)*100).toFixed(2)}/pg</div>
+    </div>`).join('')+
+    `<div class="cart-full">
+      <div class="cart-full-item"><div class="cart-tag">Printer retail</div><div style="font-size:15px;font-weight:500;color:var(--text-primary)">$${cfg().printerPrice}</div></div>
+      <div class="cart-full-item"><div class="cart-tag">Cost basis</div><div style="font-size:15px;font-weight:500;color:var(--text-primary)">$${PRINTER_COST}</div></div>
+      <div class="cart-full-item"><div class="cart-tag">Hardware margin</div><div style="font-size:15px;font-weight:500;color:${pmColor}">${pmVal>=0?'+':''}$${pmVal} (${pmVal>=0?'+':''}${pmPc}%)</div></div>
+    </div>`;
+}
+
+function renderMetrics(pmVal, pmPerYr, supNPI, totalNPI, dnOEM, npiOEM){
+  const pmColor=pmVal>=0?'var(--up-text)':'var(--red-text)';
+  document.getElementById('metricsRow').innerHTML=`
+    <div class="metric-card"><div class="metric-lbl">Printer margin</div><div class="metric-val" style="font-size:18px;color:${pmColor}">${pmVal>=0?'+':''}$${pmVal}</div><div class="metric-sub">÷ 3-yr life = ${pmVal>=0?'+':''}$${Math.round(pmPerYr)}/yr</div></div>
+    <div class="metric-card"><div class="metric-lbl">NPI yr 1 supplies rev</div><div class="metric-val">$${Math.round(supNPI)}</div><div class="metric-sub">incl. honeymoon + OEM reset</div></div>
+    <div class="metric-card"><div class="metric-lbl">NPI yr 1 blended OEM</div><div class="metric-val">${Math.round(npiOEM*100)}%</div><div class="metric-sub">vs ${Math.round(dnOEM*100)}% do-nothing</div></div>
+    <div class="metric-card"><div class="metric-lbl">NPI yr 1 contribution</div><div class="metric-val">$${Math.round(totalNPI)}</div><div class="metric-sub">supplies + printer margin/3</div></div>`;
+}
+
+function renderAssume(ss){
+  document.getElementById('oemVal').textContent = Math.round((1-ss)*100)+'% OEM';
+}
+
+function renderTele(ss){
+  const oem=Math.round((1-ss)*100), npiOem=Math.round((1-Math.max(0,ss-SECURITY_BOOST))*100);
+  document.getElementById('teleRow').innerHTML=`
+    <div class="tele-card"><div class="tele-lbl">High-yield vs standard mix — black</div>
+      <div class="tele-bar-bg"><div class="tele-bar" style="width:${BK_XL*100}%;background:#378ADD"></div></div>
+      <div class="tele-vals"><span>${Math.round(BK_XL*100)}% high yield</span><span>${Math.round((1-BK_XL)*100)}% standard</span></div></div>
+    <div class="tele-card"><div class="tele-lbl">Black vs color page mix</div>
+      <div class="tele-bar-bg"><div class="tele-bar" style="width:${BK_MIX*100}%;background:#888780"></div></div>
+      <div class="tele-vals"><span>${Math.round(BK_MIX*100)}% black</span><span>${Math.round((1-BK_MIX)*100)}% color</span></div></div>
+    <div class="tele-card"><div class="tele-lbl">OEM share — steady state vs NPI target</div>
+      <div class="tele-bar-bg"><div class="tele-bar" style="width:${oem}%;background:#1D9E75"></div></div>
+      <div class="tele-vals"><span>Do-nothing: ${oem}%</span><span>NPI target: ${npiOem}%</span></div></div>`;
+}
+
+function renderChart(curve, dnOEM){
+  const labels=['Launch','Q1','Q2','Q3','Q4','Q5','Q6'];
+  const npiPts=curve.map(v=>Math.round(v*1000)/10);
+  const dnPts=Array(7).fill(Math.round(dnOEM*1000)/10);
+  const yMin=Math.max(0, Math.round(dnOEM*100)-8);
+  if(window._amChart) window._amChart.destroy();
+  window._amChart=new Chart(document.getElementById('amChart'),{
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'NPI — OEM share',data:npiPts,borderColor:cfg().color,backgroundColor:cfg().color+'18',tension:.35,fill:true,pointRadius:3,pointBackgroundColor:cfg().color},
+        {label:'Do-nothing — steady state',data:dnPts,borderColor:'#888780',borderDash:[5,4],tension:0,fill:false,pointRadius:0}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,labels:{font:{size:11},color:'#888780',boxWidth:20,padding:12}}},
+      scales:{
+        x:{ticks:{font:{size:10},color:'#888780'},grid:{display:false}},
+        y:{min:yMin,max:100,ticks:{font:{size:11},color:'#888780',callback:v=>v+'%'},grid:{color:'rgba(136,135,128,0.12)'}}
+      }
+    }
+  });
+  document.getElementById('amNote').textContent=
+    `NPI launches at 100% OEM share. Refill and remanufactured aftermarket cartridges enter within Q1–Q3; counterfeit variants follow by Q4–Q6. Security improvements in each new generation raise the eventual OEM share floor by ~1.5pp vs the prior generation. The aftermarket reset at launch is the single largest driver of NPI financial uplift.`;
+}
+
+function renderNPI(supDN, totalDN, supNPI, totalNPI, pmPerYr, ss, npiOEM){
+  const supDelta=supNPI-supDN, totDelta=totalNPI-totalDN;
+  const totPct=totalDN!==0?((totDelta/Math.abs(totalDN))*100).toFixed(1):'—';
+  const dnOEM=Math.round((1-ss)*100), pmColor=pmPerYr>=0?'var(--up-text)':'var(--red-text)';
+  document.getElementById('npiRow').innerHTML=`
+    <div class="sc-card">
+      <div class="sc-title"><i class="ti ti-clock" aria-hidden="true"></i> Do nothing — prior generation at steady state</div>
+      <div class="sc-item"><span>OEM share (steady state)</span><span class="v">${dnOEM}%</span></div>
+      <div class="sc-item"><span>Median pages / month</span><span class="v">${cfg().ppm} pgs</span></div>
+      <div class="sc-item"><span>Annual supplies rev / printer</span><span class="v">$${Math.round(supDN)}</span></div>
+      <div class="sc-item"><span>Printer margin / yr</span><span class="v" style="color:${pmColor}">${pmPerYr>=0?'+':''}$${Math.round(pmPerYr)}</span></div>
+      <div class="sc-item"><span>Annual unit contribution</span><span class="v">$${Math.round(totalDN)}</span></div>
+      <div class="sc-item"><span>3-yr total / printer</span><span class="v">$${Math.round(totalDN*3)}</span></div>
+    </div>
+    <div class="sc-card featured">
+      <div class="sc-title"><i class="ti ti-rocket" aria-hidden="true"></i> NPI launch — year 1 <span class="sc-badge">recommended</span></div>
+      <div class="sc-item"><span>Yr 1 blended OEM share</span><span class="v">${Math.round(npiOEM*100)}% <span class="pos">↑ launch reset</span></span></div>
+      <div class="sc-item"><span>Avg pages / month (w/ honeymoon)</span><span class="v">${Math.round(npiPPM())} pgs <span class="pos">↑ honeymoon</span></span></div>
+      <div class="sc-item"><span>Annual supplies rev / printer</span><span class="v">$${Math.round(supNPI)} <span class="${supDelta>=0?'pos':'neg'}">${supDelta>=0?'+':''}$${Math.round(supDelta)}</span></span></div>
+      <div class="sc-item"><span>Printer margin / yr</span><span class="v" style="color:${pmColor}">${pmPerYr>=0?'+':''}$${Math.round(pmPerYr)}</span></div>
+      <div class="sc-item"><span>Annual unit contribution</span><span class="v">$${Math.round(totalNPI)} <span class="${totDelta>=0?'pos':'neg'}">${totDelta>=0?'+':''}${totPct}%</span></span></div>
+      <div class="sc-item"><span>3-yr total / printer</span><span class="v">$${Math.round(totalNPI*3)}</span></div>
+    </div>`;
+}
+
+render();
+</script>
+</body>
+</html>
