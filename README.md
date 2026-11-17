@@ -1,6 +1,6 @@
 # Ink Supplies Portfolio Simulation
 
-A portfolio project demonstrating the analytical framework used to manage a ~$1.9B global ink supplies portfolio at a major consumer hardware company.
+A portfolio project demonstrating the analytical framework behind a ~$1.9B global ink supplies portfolio at a major consumer hardware company.
 
 ## Live site
 
@@ -22,4 +22,4 @@ This project models the assumption framework I maintained across ~55 platform ×
 
 ## Contact
 
-Chris Cannon — [chrisacannon@gmail.com](mailto:chrisacannon@gmail.com) — [linkedin.com/in/chrisacannon](https://linkedin.com/in/chrisacannon)
+Chris Cannon — [chrisacannon@gmail.com](mailto:chrisacannon@gmail.com) — [linkedin.com/in/chris-cannon-80917833](https://www.linkedin.com/in/chris-cannon-80917833/)
